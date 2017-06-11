@@ -29,27 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Plik", System.Windows.Forms.HorizontalAlignment.Left);
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkExcludeMetadata = new System.Windows.Forms.CheckBox();
-            this.chkMetadata = new System.Windows.Forms.CheckedListBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.chkUseEquality = new System.Windows.Forms.CheckBox();
-            this.chkUseCreteRule = new System.Windows.Forms.CheckBox();
-            this.lbExampleCommand = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtCommand = new System.Windows.Forms.TextBox();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.button2 = new System.Windows.Forms.Button();
-            this.bnCatalogue = new System.Windows.Forms.Button();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.listView1 = new System.Windows.Forms.ListView();
             this.File = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Label = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Metadate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -65,139 +44,348 @@
             this.State = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Durance = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.tabPage1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.P = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.L = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q1Min = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q1Max = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q2Min = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q2Max = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q3Min = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Q3Max = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.QDevMin = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.QDevMax = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Average = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Mod = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Total = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.PlayPauseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.StopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bnChooseFolder = new System.Windows.Forms.Button();
+            this.bnPreview = new System.Windows.Forms.Button();
+            this.bnShare = new System.Windows.Forms.Button();
+            this.bnCatalogue = new System.Windows.Forms.Button();
+            this.chkOmitDollarSign = new System.Windows.Forms.CheckBox();
+            this.chkUseEquality = new System.Windows.Forms.CheckBox();
+            this.chkUseCreteRule = new System.Windows.Forms.CheckBox();
+            this.lbExampleCommand = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtCommand = new System.Windows.Forms.TextBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabPage1
+            // File
             // 
-            this.tabPage1.Controls.Add(this.groupBox2);
-            this.tabPage1.Controls.Add(this.groupBox1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 34);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage1.Size = new System.Drawing.Size(599, 488);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Kryteria katalogowania";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.File.DisplayIndex = 0;
+            this.File.Text = "Plik";
             // 
-            // groupBox2
+            // Label
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.chkExcludeMetadata);
-            this.groupBox2.Controls.Add(this.chkMetadata);
-            this.groupBox2.Location = new System.Drawing.Point(7, 219);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Size = new System.Drawing.Size(579, 266);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Metadane";
+            this.Label.DisplayIndex = 1;
+            this.Label.Text = "Etykieta";
             // 
-            // chkExcludeMetadata
+            // Metadate
             // 
-            this.chkExcludeMetadata.AutoSize = true;
-            this.chkExcludeMetadata.Location = new System.Drawing.Point(8, 31);
-            this.chkExcludeMetadata.Margin = new System.Windows.Forms.Padding(4);
-            this.chkExcludeMetadata.Name = "chkExcludeMetadata";
-            this.chkExcludeMetadata.Size = new System.Drawing.Size(349, 29);
-            this.chkExcludeMetadata.TabIndex = 3;
-            this.chkExcludeMetadata.Text = "Wy&klucz niektóre metadane z plików";
-            this.chkExcludeMetadata.UseVisualStyleBackColor = true;
-            this.chkExcludeMetadata.CheckedChanged += new System.EventHandler(this.chkExcludeMetadata_CheckedChanged);
+            this.Metadate.DisplayIndex = 2;
+            this.Metadate.Text = "Metadane";
             // 
-            // chkMetadata
+            // DownloadedFrom
             // 
-            this.chkMetadata.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkMetadata.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.chkMetadata.Enabled = false;
-            this.chkMetadata.FormattingEnabled = true;
-            this.chkMetadata.Location = new System.Drawing.Point(8, 59);
-            this.chkMetadata.Margin = new System.Windows.Forms.Padding(4);
-            this.chkMetadata.Name = "chkMetadata";
-            this.chkMetadata.Size = new System.Drawing.Size(563, 200);
-            this.chkMetadata.TabIndex = 2;
-            this.chkMetadata.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.chkMetadata_ItemCheck);
-            this.chkMetadata.SelectedIndexChanged += new System.EventHandler(this.chkMetadata_SelectedIndexChanged);
-            this.chkMetadata.DoubleClick += new System.EventHandler(this.chkMetadata_DoubleClick);
+            this.DownloadedFrom.DisplayIndex = 3;
+            this.DownloadedFrom.Text = "Strona web pobierania";
+            // 
+            // LastModified
+            // 
+            this.LastModified.DisplayIndex = 4;
+            this.LastModified.Text = "Ostatnia mofyfikacja";
+            // 
+            // ArithmMean
+            // 
+            this.ArithmMean.DisplayIndex = 5;
+            this.ArithmMean.Text = "Średnia arytmetyczna";
+            // 
+            // Median
+            // 
+            this.Median.DisplayIndex = 6;
+            this.Median.Text = "Mediana";
+            // 
+            // Mode
+            // 
+            this.Mode.DisplayIndex = 7;
+            this.Mode.Text = "Moda";
+            // 
+            // Q1
+            // 
+            this.Q1.DisplayIndex = 8;
+            this.Q1.Text = "Kwartyl 1.";
+            // 
+            // Q2
+            // 
+            this.Q2.DisplayIndex = 9;
+            this.Q2.Text = "Kwartyl 2.";
+            // 
+            // Q3
+            // 
+            this.Q3.DisplayIndex = 10;
+            this.Q3.Text = "Kwartyl 3.";
+            // 
+            // QDeviation
+            // 
+            this.QDeviation.DisplayIndex = 11;
+            this.QDeviation.Text = "Odchylenie kwartylne";
+            // 
+            // State
+            // 
+            this.State.DisplayIndex = 12;
+            this.State.Text = "Stan";
+            // 
+            // Durance
+            // 
+            this.Durance.DisplayIndex = 13;
+            this.Durance.Text = "Czas trwania";
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.backgroundWorker1.WorkerSupportsCancellation = true;
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.button3);
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.listView1);
+            this.groupBox1.Controls.Add(this.bnChooseFolder);
+            this.groupBox1.Controls.Add(this.bnPreview);
+            this.groupBox1.Controls.Add(this.bnShare);
+            this.groupBox1.Controls.Add(this.bnCatalogue);
+            this.groupBox1.Controls.Add(this.chkOmitDollarSign);
             this.groupBox1.Controls.Add(this.chkUseEquality);
             this.groupBox1.Controls.Add(this.chkUseCreteRule);
             this.groupBox1.Controls.Add(this.lbExampleCommand);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.txtCommand);
-            this.groupBox1.Location = new System.Drawing.Point(3, 2);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.groupBox1.Location = new System.Drawing.Point(11, 18);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox1.Size = new System.Drawing.Size(584, 210);
-            this.groupBox1.TabIndex = 0;
+            this.groupBox1.Size = new System.Drawing.Size(700, 641);
+            this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Użyj polecenia";
+            this.groupBox1.Text = " Użyj polecenia";
             // 
-            // button3
+            // listView1
             // 
-            this.button3.Location = new System.Drawing.Point(399, 182);
-            this.button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 28);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.P,
+            this.L,
+            this.Q1Min,
+            this.Q1Max,
+            this.Q2Min,
+            this.Q2Max,
+            this.Q3Min,
+            this.Q3Max,
+            this.QDevMin,
+            this.QDevMax,
+            this.Average,
+            this.Mod,
+            this.Total});
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
+            this.listView1.Location = new System.Drawing.Point(5, 229);
+            this.listView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(688, 354);
+            this.listView1.TabIndex = 14;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.ItemActivate += new System.EventHandler(this.listView1_ItemActivate);
             // 
-            // button1
+            // P
             // 
-            this.button1.Location = new System.Drawing.Point(399, 133);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 28);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.P.Text = "Plik";
+            this.P.Width = 120;
+            // 
+            // L
+            // 
+            this.L.Text = "Etykieta";
+            this.L.Width = 120;
+            // 
+            // Q1Min
+            // 
+            this.Q1Min.Text = "Kwartyl 1.(minimum)";
+            this.Q1Min.Width = 150;
+            // 
+            // Q1Max
+            // 
+            this.Q1Max.Text = "Kwartyl 1.(maksimum)";
+            this.Q1Max.Width = 150;
+            // 
+            // Q2Min
+            // 
+            this.Q2Min.Text = "Kwatyl 2.(minimum)";
+            this.Q2Min.Width = 150;
+            // 
+            // Q2Max
+            // 
+            this.Q2Max.Text = "Kwartyl 2.(maksimum)";
+            this.Q2Max.Width = 150;
+            // 
+            // Q3Min
+            // 
+            this.Q3Min.Text = "Kwatyl 3.(minimum)";
+            this.Q3Min.Width = 150;
+            // 
+            // Q3Max
+            // 
+            this.Q3Max.Text = "Kwartyl 3.(maksimum)";
+            this.Q3Max.Width = 150;
+            // 
+            // QDevMin
+            // 
+            this.QDevMin.Text = "Odchylenie kwartylne(minimum)";
+            this.QDevMin.Width = 200;
+            // 
+            // QDevMax
+            // 
+            this.QDevMax.Text = "Odchylenie kwartylne(maksimum)";
+            this.QDevMax.Width = 200;
+            // 
+            // Average
+            // 
+            this.Average.Text = "Średnia arytmetyczna";
+            this.Average.Width = 120;
+            // 
+            // Mod
+            // 
+            this.Mod.Text = "Moda";
+            this.Mod.Width = 120;
+            // 
+            // Total
+            // 
+            this.Total.Text = "Czas trwania [ms]";
+            this.Total.Width = 120;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PlayPauseToolStripMenuItem,
+            this.StopToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(209, 56);
+            // 
+            // PlayPauseToolStripMenuItem
+            // 
+            this.PlayPauseToolStripMenuItem.Name = "PlayPauseToolStripMenuItem";
+            this.PlayPauseToolStripMenuItem.Size = new System.Drawing.Size(208, 26);
+            this.PlayPauseToolStripMenuItem.Text = "&Wznów/Wstrzymaj";
+            this.PlayPauseToolStripMenuItem.Click += new System.EventHandler(this.PlayPauseToolStripMenuItem_Click);
+            // 
+            // StopToolStripMenuItem
+            // 
+            this.StopToolStripMenuItem.Name = "StopToolStripMenuItem";
+            this.StopToolStripMenuItem.Size = new System.Drawing.Size(208, 26);
+            this.StopToolStripMenuItem.Text = "&Zatrzymaj";
+            this.StopToolStripMenuItem.Click += new System.EventHandler(this.StopToolStripMenuItem_Click);
+            // 
+            // bnChooseFolder
+            // 
+            this.bnChooseFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bnChooseFolder.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.bnChooseFolder.Location = new System.Drawing.Point(643, 39);
+            this.bnChooseFolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.bnChooseFolder.Name = "bnChooseFolder";
+            this.bnChooseFolder.Size = new System.Drawing.Size(52, 30);
+            this.bnChooseFolder.TabIndex = 12;
+            this.bnChooseFolder.Text = "...";
+            this.bnChooseFolder.UseVisualStyleBackColor = true;
+            this.bnChooseFolder.Click += new System.EventHandler(this.bnChooseFolder_Click);
+            // 
+            // bnPreview
+            // 
+            this.bnPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bnPreview.Enabled = false;
+            this.bnPreview.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.bnPreview.Location = new System.Drawing.Point(400, 590);
+            this.bnPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bnPreview.Name = "bnPreview";
+            this.bnPreview.Size = new System.Drawing.Size(143, 39);
+            this.bnPreview.TabIndex = 11;
+            this.bnPreview.Text = "&Podgląd";
+            this.bnPreview.UseVisualStyleBackColor = true;
+            this.bnPreview.Click += new System.EventHandler(this.bnPreview_Click);
+            // 
+            // bnShare
+            // 
+            this.bnShare.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bnShare.Enabled = false;
+            this.bnShare.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.bnShare.Location = new System.Drawing.Point(552, 591);
+            this.bnShare.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bnShare.Name = "bnShare";
+            this.bnShare.Size = new System.Drawing.Size(143, 39);
+            this.bnShare.TabIndex = 10;
+            this.bnShare.Text = "U&dostępnij";
+            this.bnShare.UseVisualStyleBackColor = true;
+            // 
+            // bnCatalogue
+            // 
+            this.bnCatalogue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bnCatalogue.Enabled = false;
+            this.bnCatalogue.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.bnCatalogue.Location = new System.Drawing.Point(0, 590);
+            this.bnCatalogue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bnCatalogue.Name = "bnCatalogue";
+            this.bnCatalogue.Size = new System.Drawing.Size(388, 39);
+            this.bnCatalogue.TabIndex = 9;
+            this.bnCatalogue.Text = "&Kataloguj";
+            this.bnCatalogue.UseVisualStyleBackColor = true;
+            this.bnCatalogue.Click += new System.EventHandler(this.bnCatalogue_Click);
+            // 
+            // chkOmitDollarSign
+            // 
+            this.chkOmitDollarSign.AutoSize = true;
+            this.chkOmitDollarSign.Location = new System.Drawing.Point(28, 193);
+            this.chkOmitDollarSign.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkOmitDollarSign.Name = "chkOmitDollarSign";
+            this.chkOmitDollarSign.Size = new System.Drawing.Size(687, 29);
+            this.chkOmitDollarSign.TabIndex = 7;
+            this.chkOmitDollarSign.Text = "&Pomiń numer (znak dolara ($) w regule) w nazwie folderu/ów katalogowania";
+            this.chkOmitDollarSign.UseVisualStyleBackColor = true;
             // 
             // chkUseEquality
             // 
             this.chkUseEquality.AutoSize = true;
             this.chkUseEquality.Enabled = false;
-            this.chkUseEquality.Location = new System.Drawing.Point(28, 170);
-            this.chkUseEquality.Margin = new System.Windows.Forms.Padding(4);
+            this.chkUseEquality.Location = new System.Drawing.Point(28, 155);
+            this.chkUseEquality.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkUseEquality.Name = "chkUseEquality";
             this.chkUseEquality.Size = new System.Drawing.Size(243, 29);
             this.chkUseEquality.TabIndex = 5;
             this.chkUseEquality.Text = "Użyj znaku &równości (=)";
             this.chkUseEquality.UseVisualStyleBackColor = true;
-            this.chkUseEquality.CheckedChanged += new System.EventHandler(this.chkUseEquality_CheckedChanged);
             // 
             // chkUseCreteRule
             // 
             this.chkUseCreteRule.AutoSize = true;
-            this.chkUseCreteRule.Location = new System.Drawing.Point(28, 133);
-            this.chkUseCreteRule.Margin = new System.Windows.Forms.Padding(4);
+            this.chkUseCreteRule.Location = new System.Drawing.Point(28, 118);
+            this.chkUseCreteRule.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkUseCreteRule.Name = "chkUseCreteRule";
             this.chkUseCreteRule.Size = new System.Drawing.Size(260, 29);
             this.chkUseCreteRule.TabIndex = 3;
             this.chkUseCreteRule.Text = "&Użyj reguły typu \"create...\"";
             this.chkUseCreteRule.UseVisualStyleBackColor = true;
-            this.chkUseCreteRule.CheckedChanged += new System.EventHandler(this.chkUseCreteRule_CheckedChanged);
             // 
             // lbExampleCommand
             // 
@@ -226,205 +414,34 @@
             this.txtCommand.Location = new System.Drawing.Point(133, 39);
             this.txtCommand.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtCommand.Name = "txtCommand";
-            this.txtCommand.Size = new System.Drawing.Size(427, 30);
+            this.txtCommand.Size = new System.Drawing.Size(503, 30);
             this.txtCommand.TabIndex = 0;
-            this.txtCommand.TextChanged += new System.EventHandler(this.txtCommand_TextChanged);
             // 
-            // tabControl1
+            // timer1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(607, 526);
-            this.tabControl1.TabIndex = 0;
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.button2);
-            this.tabPage2.Controls.Add(this.bnCatalogue);
-            this.tabPage2.Controls.Add(this.listView1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 34);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tabPage2.Size = new System.Drawing.Size(599, 488);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Praca";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(445, 443);
-            this.button2.Margin = new System.Windows.Forms.Padding(4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(147, 36);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "W&yślij";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // bnCatalogue
-            // 
-            this.bnCatalogue.ContextMenuStrip = this.contextMenuStrip1;
-            this.bnCatalogue.Location = new System.Drawing.Point(13, 341);
-            this.bnCatalogue.Margin = new System.Windows.Forms.Padding(4);
-            this.bnCatalogue.Name = "bnCatalogue";
-            this.bnCatalogue.Size = new System.Drawing.Size(572, 44);
-            this.bnCatalogue.TabIndex = 3;
-            this.bnCatalogue.Text = "&Kataloguj";
-            this.bnCatalogue.UseVisualStyleBackColor = true;
-            this.bnCatalogue.Click += new System.EventHandler(this.bnCatalogue_Click);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem1,
-            this.toolStripMenuItem2});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(482, 56);
-            this.contextMenuStrip1.Text = "Uwzględnij w nazwie folderu datę i godzinę  katalogowania";
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(481, 26);
-            this.toolStripMenuItem1.Text = "Uwzględnij w nazwie folderu datę i godzinę  katalogowania";
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(481, 26);
-            this.toolStripMenuItem2.Text = "Zapisz raport katgalogowania";
-            // 
-            // listView1
-            // 
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.File,
-            this.Label,
-            this.Metadate,
-            this.DownloadedFrom,
-            this.LastModified,
-            this.ArithmMean,
-            this.Median,
-            this.Mode,
-            this.Q1,
-            this.Q2,
-            this.Q3,
-            this.QDeviation,
-            this.State,
-            this.Durance});
-            listViewGroup3.Header = "Plik";
-            listViewGroup3.Name = "listViewGroup1";
-            this.listView1.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup3});
-            this.listView1.Location = new System.Drawing.Point(13, 6);
-            this.listView1.Margin = new System.Windows.Forms.Padding(4);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(571, 326);
-            this.listView1.TabIndex = 5;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            // 
-            // File
-            // 
-            this.File.Text = "Plik";
-            // 
-            // Label
-            // 
-            this.Label.Text = "Etykieta";
-            // 
-            // Metadate
-            // 
-            this.Metadate.Text = "Metadane";
-            // 
-            // DownloadedFrom
-            // 
-            this.DownloadedFrom.Text = "Strona web pobierania";
-            // 
-            // LastModified
-            // 
-            this.LastModified.Text = "Ostatnia mofyfikacja";
-            // 
-            // ArithmMean
-            // 
-            this.ArithmMean.Text = "Średnia arytmetyczna";
-            // 
-            // Median
-            // 
-            this.Median.Text = "Mediana";
-            // 
-            // Mode
-            // 
-            this.Mode.Text = "Moda";
-            // 
-            // Q1
-            // 
-            this.Q1.Text = "Kwartyl 1.";
-            // 
-            // Q2
-            // 
-            this.Q2.Text = "Kwartyl 2.";
-            // 
-            // Q3
-            // 
-            this.Q3.Text = "Kwartyl 3.";
-            // 
-            // QDeviation
-            // 
-            this.QDeviation.Text = "Odchylenie kwartylne";
-            // 
-            // State
-            // 
-            this.State.Text = "Stan";
-            // 
-            // Durance
-            // 
-            this.Durance.Text = "Czas trwania";
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(607, 526);
-            this.Controls.Add(this.tabControl1);
+            this.BackColor = System.Drawing.SystemColors.Window;
+            this.ClientSize = new System.Drawing.Size(713, 663);
+            this.Controls.Add(this.groupBox1);
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "Form1";
-            this.tabPage1.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.Text = "Katalogowanie plików dźwiękowych [bezczynny]";
+            this.TextChanged += new System.EventHandler(this.Form1_TextChanged);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtCommand;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.Label lbExampleCommand;
-        private System.Windows.Forms.CheckBox chkUseCreteRule;
-        private System.Windows.Forms.CheckBox chkUseEquality;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckedListBox chkMetadata;
-        private System.Windows.Forms.CheckBox chkExcludeMetadata;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button bnCatalogue;
-        private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ColumnHeader File;
         private System.Windows.Forms.ColumnHeader Label;
         private System.Windows.Forms.ColumnHeader Metadate;
@@ -437,13 +454,39 @@
         private System.Windows.Forms.ColumnHeader Q2;
         private System.Windows.Forms.ColumnHeader Q3;
         private System.Windows.Forms.ColumnHeader QDeviation;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ColumnHeader State;
         private System.Windows.Forms.ColumnHeader Durance;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox chkOmitDollarSign;
+        private System.Windows.Forms.CheckBox chkUseEquality;
+        private System.Windows.Forms.CheckBox chkUseCreteRule;
+        private System.Windows.Forms.Label lbExampleCommand;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtCommand;
+        private System.Windows.Forms.Button bnPreview;
+        private System.Windows.Forms.Button bnShare;
+        private System.Windows.Forms.Button bnCatalogue;
+        private System.Windows.Forms.Button bnChooseFolder;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ColumnHeader P;
+        private System.Windows.Forms.ColumnHeader L;
+        private System.Windows.Forms.ColumnHeader Q1Min;
+        private System.Windows.Forms.ColumnHeader Q1Max;
+        private System.Windows.Forms.ColumnHeader Q2Min;
+        private System.Windows.Forms.ColumnHeader Q2Max;
+        private System.Windows.Forms.ColumnHeader Q3Min;
+        private System.Windows.Forms.ColumnHeader Q3Max;
+        private System.Windows.Forms.ColumnHeader QDevMin;
+        private System.Windows.Forms.ColumnHeader QDevMax;
+        private System.Windows.Forms.ColumnHeader Average;
+        private System.Windows.Forms.ColumnHeader Mod;
+        private System.Windows.Forms.ColumnHeader Total;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem PlayPauseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem StopToolStripMenuItem;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 

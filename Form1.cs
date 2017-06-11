@@ -14,14 +14,16 @@ using System.IO;
 using System.Xml;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using FirebirdSql.Data.FirebirdClient;
+using PRI_KATALOGOWANIE_PLIKÓW;
 
 namespace PRI_KATALOGOWANIE_PLIKÓW
 {
     public partial class Form1 : Form
     {
-        public static string[] extends = { "txt", "csv", "doc", "docx", "odt", "ods", "odp", "xls", "xlsx", "pdf", "ppt", "pptx", "pps", "fb2", "htm", "html", "tsv", "xml", "jpg", "jpeg", "tiff", "bmp", "mp4", "avi", "mp3", "wav"};
-        private string regex = @"((u|s|wy){0,1}(tw((órz)|(orzyć)|(orzenie))))(\s)(etykiet(y|ę){0,1})(\s)((<[a-ząęśćżźół\#]+\$>)+)(\s)((dla){0,1})(\s)((każde){0,1}((go)|j){0,1})(\s){0,1}((grupy){0,1})(\s){0,1}((((plik)|(obiekt))(u|ów))|(lokacji))(\s)(((\*{0,1})\.{0,1}[a-z0-9]{3,4}\s{0,1})+)";
-        private string regexCreate = @"(create)(\s)(label)(\s)((<[a-ząęśćżźół\#]+\$>)+)(\s)((for){0,1})(\s)((every)|(all)|(each){0,1})(\s){0,1}((group of files)|(files' group){0,1})(\s)(((\*{0,1})\.{0,1}[a-z0-9]{3,4}\s{0,1})+)";
+        public static string[] extends = { "mp3", "wav"};
+        private string regex = @"((u|s|wy){0,1}(tw((órz)|(orzyć)|(orzenie))))(\s)(etykiet(y|ę){0,1})(\s)((<[A-ZĄĘŚĆŻŹÓŁa-ząęśćżźół\#\s0-9%\.,]+\$>)+)(\s)((dla){0,1})(\s)((każde){0,1}((go)|j){0,1})(\s){0,1}((grupy){0,1})(\s){0,1}((((plik)|(obiekt))(u|ów))|(lokacji))(\s)(((\*{0,1})\.{0,1}[a-z0-9]{3,4}\s{0,1})+)";
+        private string regexCreate = @"(create)(\s)(label)(\s)((<[A-ZĄĘŚĆŻŹÓŁa-ząęśćżźół\#\s0-9%\.,]+\$>)+)(\s)((for){0,1})(\s)((every)|(all)|(each){0,1})(\s){0,1}((group of files)|(files' group){0,1})(\s)(((\*{0,1})\.{0,1}[a-z0-9]{3,4}\s{0,1})+)";
         private string[] exampleCommands = { "utwórz etykietę <x$> dla pliku *.mp3", "utwórz etykietę <x$> dla obiektu *.mp3", "utwórz etykietę <x$> dla lokacji *.mp3", "utwórz etykiety <x$><y$> dla grupy plików *.mp3 *wav", "utwórz etykiety <x$><y$> dla plików *.mp3 *wav", "utwórz etykiety <x$><y$> plików *.mp3 *wav", "utwórz etykiety <x$><y$> dla obiektów *.mp3 *wav", "utwórz etykiety <x$><y$> dla lokacji *.mp3 *wav" };
         private string[] exampleCommandsCreate = { "create label <x$> for every file *.mp3", "create label <x$> for each file *.mp3", "create label <x$> for all file *.mp3", "create label <x$> for file *.mp3", "create label <x$><y$> for files' group *.mp3 *wav", "create label <x$><y$> for group of file *.mp3 *wav", };
         int randResult = 0;
@@ -30,171 +32,121 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
         Dictionary<string, string> fileLabels;
         List<string> excludedMetadata;
         List<string> names;
+        List<string> selectedLabels;
+        List<int> length;
         bool equals;
         const string path = @"C:\Users\lenovo\Documents\Visual Studio 2012\Projects\PRI-KATALOGOWANIE-PLIKÓW\PRI-KATALOGOWANIE-PLIKÓW\metadata.xml";
         const string pathTxt = @"C:\Users\lenovo\Documents\Visual Studio 2012\Projects\PRI-KATALOGOWANIE-PLIKÓW\PRI-KATALOGOWANIE-PLIKÓW\$$$.txt";
+        WaveOf wOf;
+        AForge.Math.Metrics.CosineSimilarity sim;
+        List<List<double>> nested;
+        List<string> extensionsInLv;
+        int _index;
+        string activate;
+
+        private NAudio.Wave.WaveFileReader wave;
+        private NAudio.Wave.DirectSoundOut output;
+        private NAudio.Wave.BlockAlignReductionStream stream;
+
         public Form1()
         {
             InitializeComponent();
 
             this.txtCommand.LostFocus += TxtCommand_LostFocus;
-            this.chkMetadata.LostFocus += ChkMetadata_LostFocus;
-            this.tabControl1.SelectedIndexChanged += TabControl1_SelectedIndexChanged;
             this.Load += Form1_Load;
             this.KeyDown += Form1_KeyDown;
+
+            length = new List<int>();
             names = new List<string>();
             excludedMetadata = new List<string>();
             metadata = new Dictionary<Tuple<string, string>, string>();
             fileLabels = new Dictionary<string, string>();
             equals = false;
+            sim = new AForge.Math.Metrics.CosineSimilarity();
+            nested = new List<List<double>>();
+            extensionsInLv = new List<string>();
+            selectedLabels = new List<string>();
+            _index = 0;
+            activate = String.Empty;
         }
-        /*
-         * Obsługuje odpowiednie klawisze klawiatury
-         * NumPad(i) = cyfra należąca do części numerycznej (po str NumLock)
-         * D(i) = cyfra należąca do części alfanumerycznej
-         * i = 0,...,9
-         */
+
+        private void Increment(ref int _index)
+        {
+            _index++;
+        }
+
+        private void Decrement(ref int _index)
+        {
+            _index--;
+        }
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Control.ModifierKeys == Keys.Control
-                && (e.KeyCode == Keys.NumPad1 || e.KeyCode == Keys.D1))
+            if (e.KeyCode == Keys.MediaPlayPause)
             {
-                this.tabControl1.SelectedTab = this.tabPage1;
+                this.PlayPauseToolStripMenuItem_Click(sender, e);
+            }
+            else if (e.KeyCode == Keys.MediaStop)
+            {
+                this.StopToolStripMenuItem_Click(sender, e);
+            }
+            else if (e.KeyCode == Keys.MediaNextTrack)
+            {
+                this.Increment(ref _index);
+                if (_index == names.Count) _index = 0;
+                activate = names[_index];
+                this.StopToolStripMenuItem_Click(sender, e);
+                this.Form1_TextChanged(sender, e);
+                this.PlayPauseToolStripMenuItem_Click(sender, e);
+            }
+
+            else if (e.KeyCode == Keys.MediaPreviousTrack)
+            {
+                this.Decrement(ref _index);
+                if (_index < 0) _index = names.Count-1;
+                activate = names[_index];
+                this.StopToolStripMenuItem_Click(sender, e);
+                this.Form1_TextChanged(sender, e);
+                this.PlayPauseToolStripMenuItem_Click(sender, e);
             }
             else if (Control.ModifierKeys == Keys.Control
-                && (e.KeyCode == Keys.NumPad2 || e.KeyCode == Keys.D2))
+                && e.KeyCode == Keys.O || e.KeyCode == Keys.BrowserSearch)
             {
-                this.tabControl1.SelectedTab = this.tabPage2;
+                this.bnChooseFolder_Click(sender, e);
             }
-            else if (Control.ModifierKeys == Keys.Control
+            else if (Control.ModifierKeys == Keys.Alt
+                && e.KeyCode == Keys.F4)
+            {
+                this.Close();
+            }
+            else if (Control.ModifierKeys == Keys.Alt
                 && e.KeyCode == Keys.U)
             {
                 this.chkUseCreteRule.Checked = true;
             }
-            else if (Control.ModifierKeys == Keys.Control
+            else if (Control.ModifierKeys == Keys.Alt
                 && e.KeyCode == Keys.R)
             {
                 this.chkUseEquality.Checked = true;
             }
-            else if (Control.ModifierKeys == Keys.Control
-                && e.KeyCode == Keys.K)
+
+            else if (Control.ModifierKeys == Keys.Alt
+                && e.KeyCode == Keys.A)
             {
-                this.chkExcludeMetadata.Checked = true;
+                this.bnCatalogue_Click(sender, e);
             }
         }
 
         private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.tabControl1.SelectedIndex == 1)
-            {
-                /*
-                 * ToDo: Wypełnić listę w zakładce "Praca":
-                 * Plik = plik, nad którym pracujemy
-                 * Etykieta = etykieta pliku (daje pierwszeńtswo katalogowania)
-                 * Metadata = metadane pliku
-                 * Ostatnia modyfikacja = kiedy plik był ostatnio modyfikowany
-                 * Średnia, moda, kwawrtyle, ochylenie kwartylne, czas trwania = parametry statystyczne, albo czas trwania jako metryki porównywania spektogramów
-                 * Stan = przydzielenie danego pliku. Każdy domyślnie ma stan NIEPRZYDZIELONY
-                 */
-            }
 
         }
 
         private void ChkMetadata_LostFocus(object sender, EventArgs e)
         {
-            List<string> files = new List<string>();
-            
-            var diff = metadata.Where(x => !excludedMetadata.Contains(x.Key.Item1));
 
-            foreach (var item in diff)
-            {
-                files.Add(item.Value);
-            }
-
-            var lookup = diff.ToLookup(x => x.Value);    
-            files = files.Distinct().ToList();
-            int i = 0;
-            string[] s = new string[files.Count];
-            foreach (var file in files)
-            {
-                i++;
-                s[i-1] += file.Replace(" ", "_");
-                foreach (var name in lookup[files[i-1]])
-                    s[i-1] += "; " + name.Key.Item1;
-            }
-            string[] columnHeader = null;
-            string flag = String.Empty;
-            foreach (var _s in s)
-            {
-                columnHeader = _s.Split(' ');
-                for (int j = 1; j <= columnHeader.Length - 1; j++)
-                {
-                    /*
-                     * ToDo : Utworzyć nazwy kolumn tabeli bazy danych. Będą one odpowiednimi nazwami metadanych.
-                     * Pierwsza kolumna będzie zaerzerwowana na pliki.
-                     */
-                }
-            }
-
-            Random rand = new Random();
-            List<XmlNode> node = new List<XmlNode>();
-            char randChar = (char)rand.Next(65, 90);
-            XmlDocument xDoc = new XmlDocument();
-            xDoc.Load(path);
-            XmlElement _metadata = xDoc.CreateElement("metadata");
-
-            string strMachineUserName = Environment.MachineName + "_" + Environment.UserName + "_" + DateTime.Now.ToString("yyyyMMddHHmmssffff");
-
-            string strMd5 = this.Encrypt(strMachineUserName, true);
-            string strMd5MachineUserName = this.Encrypt("machineUserName", true);
-
-            string key = randChar + strMd5MachineUserName.Substring(1).Replace("=", string.Empty).Replace("+", string.Empty).Replace("/", string.Empty);
-
-            _metadata.SetAttribute(key, strMd5);
-            System.IO.File.SetAttributes(pathTxt, FileAttributes.Normal);
-            System.IO.File.AppendAllText(pathTxt, key + "$" + strMd5MachineUserName + Environment.NewLine);
-            
-            foreach (var _s in s)
-            {
-                columnHeader = _s.Split(' ');
-                MessageBox.Show(columnHeader[0]);
-                string content = randChar + columnHeader[0].Substring(columnHeader[0].LastIndexOf("\\") + 1).Trim(';');
-                node.Add(xDoc.CreateElement(Regex.Replace(content, "^[0-9]", "X")));
-            }
-
-            foreach (var n in node)
-                foreach (var _s in s)
-                {
-                    columnHeader = _s.Split(' ');
-                    n.InnerText = this.Assign(columnHeader[0]);
-                }
-                    
-
-            foreach (var n in node)
-                _metadata.AppendChild(n);
-
-            xDoc.DocumentElement.AppendChild(_metadata);
-            xDoc.Save(path);
-
-            System.IO.File.SetAttributes(pathTxt, FileAttributes.ReadOnly | FileAttributes.Hidden);
-            ListViewItem row = new ListViewItem();
-            string allMetadata = string.Empty;
-            foreach (var m in metadata)
-                allMetadata += m.Key + "=>" + m.Value + ";";
-            foreach (var name in names.Distinct())
-            {
-                foreach (var item in fileLabels)
-                    if (name.EndsWith(item.Value))
-                    {
-                        row.SubItems.Insert(0, new ListViewItem.ListViewSubItem(new ListViewItem(), name));
-                        row.SubItems.Insert(1, new ListViewItem.ListViewSubItem(new ListViewItem(), item.Key));
-                        row.SubItems.Insert(2, new ListViewItem.ListViewSubItem(new ListViewItem(), allMetadata));
-                        //...
-                        this.listView1.Items.Add(row);
-                    }
-            }
         }
-
+              
         /// <summary>
         /// Przypisuje flagę do pliku
         /// </summary>
@@ -215,83 +167,16 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
             randResult = rand.Next(0, exampleCommands.Length - 1);
             randResultCreate = rand.Next(0, exampleCommandsCreate.Length - 1);
             this.lbExampleCommand.Text += exampleCommands[randResult];
+
         }
 
         private void TxtCommand_LostFocus(object sender, EventArgs e)
         {
-            Match m = Regex.Match(exampleCommands[randResult], regex);
-            Regex rxCreate = new Regex(regexCreate, RegexOptions.IgnoreCase);
-
-            Match mCreate = Regex.Match(exampleCommandsCreate[randResultCreate], regexCreate);
-            Regex rx = new Regex(regex, RegexOptions.IgnoreCase);
-
-            Match mtxtCommand = Regex.Match(this.txtCommand.Text, regex);
-
-            var groupRegexCreate = GroupRegex(rxCreate, mCreate);
-            //if (this.chkUseCreteRule.Checked)
-            //{
-            //    if (Clipboard.ContainsText())
-            //        this.txtCommand.Text = Clipboard.GetText();
-                foreach (var item in this.GroupRegex(rx, mtxtCommand))
-                    _group.Add(item);
-                var groupRegex = GroupRegex(rx, m);
-                var split = txtCommand.Text.Split(' ');
-                
-                if (this.txtCommand.Text.Length != 0)
-                    foreach (var group in this.Groups(groupRegex, groupRegexCreate))
-                        foreach (var s in split)
-                            if (s == group.Key)
-                                equals = true;
-            string[] _split = null;
-                var notSupported = String.Empty;
-                try
-                {
-                    _split = _group[_group.Count - 2].Split(new char[] { ' ', '*', '.' });
-                    MessageBox.Show(_group[_group.Count - 2]);
-                    foreach (var s in _split)
-                        if (s != " " && s != "")
-                            if (!extends.Contains(s))
-                                notSupported += " " + s;
-
-                if (notSupported.Length > 0) MessageBox.Show("Nieobsługiwana grupa rozszerzeń: " + this.RemoveDuplicates(notSupported), "Grupa rozszerzeń", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                    
-                }
-                catch (Exception) { }
-            if (equals)
-                foreach (var group in this.Groups(groupRegex, groupRegexCreate))
-                    this.txtCommand.Text += " " + group.Value;
-
-            if (this.txtCommand.Text.Length != 0)
-                try
-                {
-                    this.txtCommand.Text += " " + _group[5] + " " + _group[_group.Count - 2];
-                }
-                catch (Exception) { }
-            this.txtCommand.Text = RemoveDuplicates(txtCommand.Text);
-            //foreach (var g in _group)
-            //    MessageBox.Show(g);
-         
-            MessageBox.Show(_group[5]);
-            Regex rxLabel = new Regex(@"(<[a-ząęśćżźół\#]+\$>)", RegexOptions.IgnoreCase);
-            Match mLabel = Regex.Match(_group[5], @"(<[a-ząęśćżźół\#]+\$>)");
-
-            int i = 0;
-            MessageBox.Show(_group[4]);
-            foreach (var group in this.GroupRegex(rxLabel, mLabel))
+            if (_index > 0)
             {
-                    try
-                    {
-                        if (group != " " && group != "")
-                        {
-                            fileLabels.Add(group.Trim('<').Trim('>').Replace("$", (i+1).ToString()), _split[2*i+1]);
-                            i++;
-                        }   
-                    }
-                    catch (Exception) { };
+                foreach (var item in fileLabels)
+                    MessageBox.Show(item.Key + " => " + item.Value);
             }
-
-            foreach (var item in fileLabels)
-                MessageBox.Show(item.Key + " => " + item.Value);
 
             //}
             //else
@@ -299,7 +184,6 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
             //    _group.Clear();
             //    Clipboard.SetText(this.txtCommand.Text);
             //}
-
         }
 
         /// <summary>
@@ -450,58 +334,7 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
 
         private void chkExcludeMetadata_CheckedChanged(object sender, EventArgs e)
         {
-            int j = 0;
-            if (this.chkExcludeMetadata.Checked)
-            {
-                foreach (var item in this.chkMetadata.Items)
-                {
-                    this.chkMetadata.SetItemChecked(j, false);
-                    j++;
-                }
-                this.chkMetadata.Enabled = true;
-                string nameSafe = String.Empty;
-                //Dictionary<string, string> names = new Dictionary<string, string>();
-                string filter = String.Empty;
-                using (FolderBrowserDialog open = new FolderBrowserDialog())
-                {
-                    if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    {
-                        var files = Directory.GetFiles(open.SelectedPath, "*", SearchOption.AllDirectories);
-                        foreach (var file in files)
-                            names.Add(file);
-                       
-                        if (names.Count == 0) MessageBox.Show("Katalog " + open.SelectedPath + " jest pusty", "Grupa rozszerzeń", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
-                }
 
-                /*
-                 * Tworzyt listę metadanych wyszystkich plików znajdujących się w wybranym katalogu
-                 */
-                var extractors = new List<TikaOnDotNet.TextExtraction.TextExtractor>();
-                foreach (var name in names)
-                    extractors.Add(new TikaOnDotNet.TextExtraction.TextExtractor());
-                foreach (var ext in extractors)
-
-                    foreach (var name in names)
-                    {
-                        try
-                        {
-                            var ex = ext.Extract(name);
-                            foreach (var _e in ex.Metadata)
-                            {
-                                this.chkMetadata.Items.Add(_e.Key + "=" + _e.Value + " [w] " + name);
-                                metadata.Add(new Tuple<string, string>(_e.Key, _e.Value), name);
-                            }
-                        }
-                        catch (Exception) { }
-                    }
-            }
-            else
-            {
-                this.chkMetadata.Enabled = false;
-                this.metadata.Clear();
-                this.chkMetadata.Items.Clear();
-            }
         }
 
         private void PostXML(string v, string requestData)
@@ -544,23 +377,151 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
 
         private void chkMetadata_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.WindowState != FormWindowState.Maximized)
-                this.toolTip1.SetToolTip(this.chkMetadata, this.chkMetadata.SelectedItem.ToString());
+           
         }
 
         private void bnCatalogue_Click(object sender, EventArgs e)
         {
-            this.contextMenuStrip1.Visible = true;
+            int _i = 0, _j = 1;
+
+            double[] nToArray_i, nToArray_j;
+            Dictionary<string, double> similarities = new Dictionary<string, double>();
+            foreach (var n in nested.ToArray())
+            {
+                nToArray_i = nested[_i].ToArray();
+                foreach (var m in nested.ToArray())
+                {
+                    if (_j >= nested.Count)
+                    {
+                        _j = 0;
+                        break;
+                    }
+                    //if (_i == _j) continue;
+                    nToArray_j = nested[_j].ToArray();
+                    if (_i != _j)
+                        //this.listView4.Items.Add("Podobieństwo pliku " + _i + ". do " + _j + ".=" 
+                        //    + sim.GetSimilarityScore(nToArray_i, nToArray_j)*100+"%");
+                    similarities.Add(_i + "," + _j, sim.GetSimilarityScore(nToArray_i, nToArray_j));
+                    //MessageBox.Show(info);
+                    _j++;
+                }
+                _i++;
+            }
+            string similarity = String.Empty;
+
+            var newSim = similarities.Where(x => x.Value != 1);
+            Dictionary<string,double> merged = new Dictionary<string, double>();
+            Dictionary<string, double> differences = new Dictionary<string, double>(); 
+            foreach (var sim in newSim)
+            {
+                var split = sim.Key.Split(',');
+                differences.Add(sim.Key, Math.Abs(newSim.ToList()[Convert.ToInt16(split[0])].Value - newSim.ToList()[Convert.ToInt16(split[1])].Value));
+            }
+
+            while (differences.Count > 1)
+            {
+                Dictionary<string, double> oldSim = new Dictionary<string, double>();
+                foreach (var difference in differences)
+                    oldSim.Add(difference.Key, difference.Value);
+
+                double min = differences.Min(x => x.Value);
+                double value = differences.Aggregate((x, y) => x.Value < y.Value ? y : x).Value;
+                string key = differences.Aggregate((x, y) => x.Value < y.Value ? y : x).Key;
+                merged.Add(key, value);
+                differences.Clear();
+                oldSim.Add(key + "," + key, min);
+                
+                foreach (var old in oldSim)
+                    if (old.Value != min)
+                        differences.Add(old.Key, min - old.Value);
+            }
+
+            List<string> folded = new List<string>();
+            similarity = String.Empty;
+            foreach (var merge in merged.Keys)
+                similarity += merge;
+            foreach (var merge in merged)
+            {
+                DirectoryInfo di = Directory.CreateDirectory(
+    names[Convert.ToInt16(merge.Key.Split(',')[0])]
+    .Substring(0, names[Convert.ToInt16(merge.Key.Split(',')[0])]
+    .LastIndexOf("\\") + 1) + "Różnica podobieństw = " + merge.Value);
+
+                foreach (var m in merge.Key.Split(','))
+                {
+                    var mdiv10 = (Convert.ToInt16(m) > names.Count - 1)
+                        ? Convert.ToInt16(m) / 10 : Convert.ToInt16(m);
+                    try
+                    {
+                        folded.Add(names[mdiv10]);
+                        System.IO.File.Move(names[mdiv10],
+                    names[mdiv10]
+            .Substring(0, names[mdiv10]
+            .LastIndexOf("\\") + 1) + "Różnica podobieństw = " + merge.Value + "\\"
+            + names[mdiv10]
+                              .Substring(names[mdiv10].LastIndexOf("\\") + 1));
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            }
+
+            MessageBox.Show(this.RemoveDuplicates(similarity));
+            MessageBox.Show("Test");
+            //
+            string name = String.Empty;
+            string fileLabelStr = String.Empty;
+            foreach (var item in fileLabels.Keys)
+                fileLabelStr += item;
+            name = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss-" + fileLabelStr + "[");
+            var invalidChars = Path.GetInvalidFileNameChars();
+            string newDateStr = String.Join("", name.Select(c => invalidChars.Contains(c) ? '-' : c));
+            //foreach (var merge in similarity.Split(new char[] { ',', ' '}))
+            //{
+            //    if (Convert.ToInt16(merge) <= names.Count - 1)
+            //    {
+            //        MessageBox.Show(merge);
+            //        folded.Add(names[Convert.ToInt16(merge)]);
+            //        System.IO.File.Move(names[Convert.ToInt16(merge)],
+            //            names[Convert.ToInt16(similarity.Split(',')[0])]
+            //    .Substring(0, names[Convert.ToInt16(similarity.Split(',')[0])]
+            //    .LastIndexOf("\\") + 1) + newDateStr + "\\" + names[Convert.ToInt16(merge)]
+            //                      .Substring(names[Convert.ToInt16(merge)].LastIndexOf("\\") + 1));
+            //    }
+            //}
+
+            //System.Threading.Thread.Sleep(1000);
+            //var diff = names.Where(x => !folded.Contains(x));
+
+            foreach (var item in diff)
+            {
+                DirectoryInfo diRest = Directory.CreateDirectory(
+                names[Convert.ToInt16(similarity.Split(',')[0])]
+                .Substring(0, names[Convert.ToInt16(similarity.Split(',')[0])]
+                .LastIndexOf("\\") + 1)
+                + String.Join("", (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss-" + fileLabelStr))
+                .Select(c => invalidChars.Contains(c) ? '-' : c)));
+
+                System.IO.File.Move(item,
+                    names[Convert.ToInt16(similarity.Split(',')[0])]
+            .Substring(0, names[Convert.ToInt16(similarity.Split(',')[0])]
+            .LastIndexOf("\\") + 1) + String.Join("", (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss-" + fileLabelStr))
+                .Select(c => invalidChars.Contains(c) ? '-' : c)) + "\\" + item
+                              .Substring(item.LastIndexOf("\\") + 1));
+            }
+            //MessageBox.Show(similarity);
         }
 
         private void chkMetadata_DoubleClick(object sender, EventArgs e)
         {
-            this.excludedMetadata.Remove(this.chkMetadata.SelectedItem.ToString());
+
         }
 
         private void chkMetadata_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            this.excludedMetadata.Add(this.chkMetadata.SelectedItem.ToString().Substring(0, this.chkMetadata.SelectedItem.ToString().IndexOf("=")));
+
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -721,6 +682,349 @@ namespace PRI_KATALOGOWANIE_PLIKÓW
         private void button3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void listView1_ItemActivate(object sender, EventArgs e)
+        {
+            this.DisposeWave();
+            activate = this.listView1.SelectedItems[0].Text;
+            this.Text = "Katalogowanie plików dźwiękowych [odtwarzam [" + activate.Substring(activate.LastIndexOf("\\") + 1) + "]]";
+            this.timer1.Start();
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            foreach (var name in names.Distinct())
+            {
+                List<double> parameters = new List<double>();
+                if (name.EndsWith(".mp3"))
+                {
+                    Mp3ToWavConverter.Convert(name);
+                }
+                wOf = new WaveOf(name.Replace(".mp3", ".wav"));
+
+                parameters.Add(wOf["Q1-Minimum"]);
+                parameters.Add(wOf["Q1-Maximum"]);
+                parameters.Add(wOf["Q2-Minimum"]);
+                parameters.Add(wOf["Q2-Maximum"]);
+                parameters.Add(wOf["Q3-Minimum"]);
+                parameters.Add(wOf["Q3-Maximum"]);
+                parameters.Add(wOf["QDev-Minimum"]);
+                parameters.Add(wOf["QDev-Maximum"]);
+                parameters.Add(wOf["Average"]);
+                parameters.Add(wOf["Mode"]);
+                parameters.Add(wOf["Total time"]);
+                
+                nested.Add(parameters);
+            }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //int index = 0;
+            foreach (var name in names.Distinct())
+            {
+                if (name.EndsWith(".mp3"))
+                {
+                    var _files = Directory.GetFiles(name.Substring(0, name.LastIndexOf("\\") + 1), "*", SearchOption.TopDirectoryOnly);
+
+                    foreach (var file in _files)
+                        if (file.EndsWith(".wav"))
+                            System.IO.File.Delete(file);
+                }
+            }
+           
+            this.Text = "Katalogowanie plików [można katalogować]";
+            this.bnCatalogue.Enabled = true;
+            this.bnPreview.Enabled = true;
+            this.bnShare.Enabled = true;
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            //this.Text = e.UserState.ToString();
+        }
+
+        private void bnPreview_Click(object sender, EventArgs e)
+        {
+            int index = 0;
+            foreach (var obj in nested)
+            {
+                List<string> summary = new List<string>();
+                summary.Add(names[index]);
+                foreach (var label in fileLabels.Keys)
+                    summary.Add(label);
+                foreach (var item in obj)
+                {
+                    summary.Add(item.ToString());
+                }
+                ListViewItem row = new ListViewItem();
+                
+                for (int i = 0; i < 13; i++)
+                {
+                    row.SubItems.Insert(i, new ListViewItem.ListViewSubItem(new ListViewItem(), summary[i]));
+                }
+
+                this.listView1.Items.Add(row);
+
+                index++;    
+            }       
+        }
+
+        private void bnChooseFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog open = new FolderBrowserDialog())
+            {
+                if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var files = Directory.GetFiles(open.SelectedPath, "*", SearchOption.AllDirectories);
+                    foreach (var file in files)
+                    {
+                        names.Add(file);
+                    }
+
+                    if (names.Count == 0) MessageBox.Show("Katalog " + open.SelectedPath + " jest pusty", "Katalogowanie plików", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
+
+            var extractors = new List<TikaOnDotNet.TextExtraction.TextExtractor>();
+
+            foreach (var name in names.Distinct())
+            {
+                extractors.Add(new TikaOnDotNet.TextExtraction.TextExtractor());
+                if (name.EndsWith(".mp3") && !System.IO.File.Exists(name.Replace(".mp3", ".wav")))
+                        Mp3ToWavConverter.Convert(name);
+            }
+
+            foreach (var ext in extractors)
+
+                foreach (var name in names.Distinct())
+                {
+                    try
+                    {
+                        var ex = ext.Extract(name);
+                        foreach (var _e in ex.Metadata)
+                        {
+                            metadata.Add(new Tuple<string, string>(_e.Key, _e.Value), name);
+                            foreach (var item in metadata.Values)
+                                extensionsInLv.Add(item.Substring(item.LastIndexOf(".")));
+                        }
+                    }
+                    catch (Exception) { }
+                }
+
+            string extensionsStr = String.Empty;
+            string fileLabelsStr = String.Empty;
+            foreach (var extension in extensionsInLv.Distinct())
+            {
+                extensionsStr += extension + " ";
+                fileLabelsStr += "<nienazwany$>";
+            }
+
+            if (this.txtCommand.Text == String.Empty)
+            {
+                this.txtCommand.Text = "utwórz etykietę " + fileLabelsStr + " dla każdego pliku " + extensionsStr.TrimEnd(' ');
+            }
+
+            Regex rx = new Regex(regex, RegexOptions.IgnoreCase);
+            Match m = Regex.Match(exampleCommands[randResult], regex);
+
+            Regex rxCreate = new Regex(regexCreate, RegexOptions.IgnoreCase);
+            Match mCreate = Regex.Match(exampleCommandsCreate[randResultCreate], regexCreate);
+
+            var groupRegexCreate = GroupRegex(rxCreate, mCreate);
+
+            Match mtxtCommand = Regex.Match(this.txtCommand.Text, regex);
+
+            foreach (var item in this.GroupRegex(rx, mtxtCommand))
+                _group.Add(item);
+            var groupRegex = GroupRegex(rx, m);
+            var split = txtCommand.Text.Split(' ');
+
+            if (this.txtCommand.Text.Length != 0)
+                foreach (var group in this.Groups(groupRegex, groupRegexCreate))
+                    foreach (var s in split)
+                        if (s == group.Key)
+                            equals = true;
+            string[] _split = null;
+            var notSupported = String.Empty;
+            try
+            {
+                _split = _group[_group.Count - 2].Split(new char[] { ' ', '*', '.' });
+                
+                foreach (var s in _split)
+                    if (s != " " && s != "")
+                        if (!extends.Contains(s))
+                            notSupported += " " + s;
+
+                if (notSupported.Length > 0) MessageBox.Show("Nieobsługiwana grupa rozszerzeń: " + this.RemoveDuplicates(notSupported), "Katalogowanie plików", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+
+            }
+            catch (Exception) { }
+            if (equals)
+                foreach (var group in this.Groups(groupRegex, groupRegexCreate))
+                    this.txtCommand.Text += " " + group.Value;
+
+            if (this.txtCommand.Text.Length != 0)
+                try
+                {
+                    this.txtCommand.Text += " " + _group[5] + " " + _group[_group.Count - 2];
+                }
+                catch (Exception) { }
+            this.txtCommand.Text = RemoveDuplicates(txtCommand.Text);
+
+            Regex rxLabel = new Regex(@"(<[A-ZĄĘŚĆŻŹÓŁa-ząęśćżźół\#\s0-9%\.,]+\$>)", RegexOptions.IgnoreCase);
+            Match mLabel = Regex.Match(_group[5], @"(<[A-ZĄĘŚĆŻŹÓŁa-ząęśćżźół\#\s0-9%\.,]+\$>)");
+
+            int i = 0;
+            
+            foreach (var group in this.GroupRegex(rxLabel, mLabel))
+            {
+                try
+                {
+                    if (group != " " && group != "")
+                    {
+                        fileLabels.Add(group.Trim('<').Trim('>').Replace("$", "(" + (i + 1).ToString() + ")"), _split[2 * i + 1]);
+                        i++;
+                    }
+                }
+                catch (Exception) { };
+            }
+            if (this.txtCommand.TextLength >= 89)
+                this.chkUseCreteRule.Enabled = false;
+            this.Text = "Katalogowanie plików dźwiękowych [obliczam...]";
+            try
+            {
+                this.backgroundWorker1.RunWorkerAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Katalogowanie plików", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            }
+        }
+
+        private void DisposeWave()
+        {
+            if (output != null)
+            {
+                if (output.PlaybackState == NAudio.Wave.PlaybackState.Playing
+                    || output.PlaybackState == NAudio.Wave.PlaybackState.Paused)
+                    output.Stop();
+                output.Dispose();
+                output = null;
+            }
+
+            if (stream != null)
+            {
+                stream.Dispose();
+                stream = null;
+            }
+        }
+
+        private void Form1_TextChanged(object sender, EventArgs e)
+        {
+            this.PlayPauseToolStripMenuItem.Text = "&Wznów/Wstrzymaj [00:00]";
+            if (!this.Text.Contains("obliczam...")
+                && !this.Text.Contains("można katalogować"))
+            {
+                if (activate.EndsWith(".mp3"))
+                {
+                    NAudio.Wave.WaveStream pcm = NAudio.Wave.WaveFormatConversionStream.CreatePcmStream(new NAudio.Wave.Mp3FileReader(activate));
+                    stream = new NAudio.Wave.BlockAlignReductionStream(pcm);
+
+                }
+                else
+                {
+                    try
+                    {
+                        NAudio.Wave.WaveStream pcm = new NAudio.Wave.WaveChannel32(new NAudio.Wave.WaveFileReader(activate));
+                        stream = new NAudio.Wave.BlockAlignReductionStream(pcm);
+                        wave = new NAudio.Wave.WaveFileReader(activate);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Katalogowanie plików", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    }
+                }
+
+                output = new NAudio.Wave.DirectSoundOut();
+                output.Init(stream);
+                output.Play();
+
+                output.PlaybackStopped += Output_PlaybackStopped;
+
+                this.timer1.Start();
+            }
+        }
+
+        private void Output_PlaybackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
+        {
+            this.timer1.Stop();
+        }
+
+        private void StopToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.TextChanged -= Form1_TextChanged;
+            if (output.PlaybackState == NAudio.Wave.PlaybackState.Paused
+                || output.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+            {
+                this.Text = "Katalogowanie plików dźwiękowych [zatrzymałem [" + activate.Substring(activate.LastIndexOf("\\") + 1) + "]]";
+                output.Stop();
+                this.timer1.Stop();
+                this.PlayPauseToolStripMenuItem.Text = "&Wznów/Wstrzymaj [00:00]";
+                this.StopToolStripMenuItem.Enabled = false;
+            }
+
+            this.TextChanged += Form1_TextChanged;
+        }
+
+        private void PlayPauseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.TextChanged -= Form1_TextChanged;
+            if (output != null)
+            {
+                if (output.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                {
+                    this.Text = "Katalogowanie plików dźwiękowych [wstrzymałem [" + activate.Substring(activate.LastIndexOf("\\") + 1) + "]]";
+                    output.Pause();
+                    this.timer1.Stop();
+                }
+                else if (output.PlaybackState == NAudio.Wave.PlaybackState.Paused)
+                {
+                    this.Text = "Katalogowanie plików dźwiękowych [odtwarzam [" + activate.Substring(activate.LastIndexOf("\\") + 1) + "]]";
+                    output.Play();
+                    this.timer1.Start();
+                    this.StopToolStripMenuItem.Enabled = true;
+                }
+            }
+
+            this.TextChanged += Form1_TextChanged;
+        }
+
+        int second = 0, minute = 0, hour = 0;
+        string time = String.Empty;
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (second > 59)
+            {
+                second = 0;
+                minute++;
+            }
+
+            if (minute > 59)
+            {
+                minute = 0;
+                hour++;
+            }
+            else
+            {
+                time = ((hour > 0) ? hour.ToString() + ":" : String.Empty) + ((minute < 10) ? "0" + minute.ToString() : minute.ToString())
+                + ":" + ((second < 10) ? "0" + second.ToString() : second.ToString());
+            } 
+
+            second++;
+
+            this.PlayPauseToolStripMenuItem.Text = "&Wznów/Wstrzymaj" + " [" + time + "]";
         }
     }
 }
